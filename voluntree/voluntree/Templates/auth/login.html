@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - VolunteerHub</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">VolunteerHub</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="register.html">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="form-container">
+            <div class="form-card">
+                <h1 class="form-title">Welcome Back</h1>
+                
+                <form class="login-form" id="loginForm" method="post">
+                    <!-- CSRF Token (Django) -->
+                    <input type="hidden" name="csrfmiddlewaretoken" value="csrf_token_here">
+                    
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="id_email" class="form-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="id_email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="you@example.com"
+                            required
+                        >
+                        <span class="form-error" id="emailError"></span>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="id_password" class="form-label">Password</label>
+                        <div class="password-container">
+                            <input 
+                                type="password" 
+                                id="id_password" 
+                                name="password" 
+                                class="form-input" 
+                                placeholder="••••••••"
+                                required
+                            >
+                            <button type="button" class="password-toggle" id="passwordToggle">
+                                <span class="toggle-icon">👁️</span>
+                            </button>
+                        </div>
+                        <span class="form-error" id="passwordError"></span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        <span class="btn-text">Login</span>
+                        <div class="btn-loading" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            Signing in...
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Forgot Password Link -->
+                <div class="forgot-password-section">
+                    <a href="forgot-password.html" class="forgot-password-link">Forgot Password?</a>
+                </div>
+
+                <!-- Form Footer -->
+                <div class="form-footer">
+                    <span class="footer-text">Don't have an account?</span>
+                    <a href="register.html" class="signup-link">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success/Error Messages -->
+    <div class="message-overlay" id="messageOverlay" style="display: none;">
+        <div class="message-content">
+            <div class="message-icon" id="messageIcon"></div>
+            <div class="message-text" id="messageText"></div>
+            <button class="message-close" id="messageClose">×</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form elements
+            const form = document.getElementById('loginForm');
+            const passwordToggle = document.getElementById('passwordToggle');
+            const passwordInput = document.getElementById('id_password');
+            const submitBtn = document.querySelector('.submit-btn');
+            const btnText = document.querySelector('.btn-text');
+            const btnLoading = document.querySelector('.btn-loading');
+
+            // Password toggle functionality
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                const icon = passwordToggle.querySelector('.toggle-icon');
+                icon.textContent = type === 'password' ? '👁️' : '🙈';
+            });
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+                const formData = new FormData(form);
+                
+                // Email validation
+                const email = formData.get('email')?.trim();
+                const emailError = document.getElementById('emailError');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email) {
+                    emailError.textContent = 'Email is required';
+                    document.getElementById('id_email').classList.add('error');
+                    isValid = false;
+                } else if (!emailRegex.test(email)) {
+                    emailError.textContent = 'Please enter a valid email address';
+                    document.getElementById('id_email').classList.add('error');
+                    isValid = false;
+                } else {
+                    emailError.textContent = '';
+                    document.getElementById('id_email').classList.remove('error');
+                }
+
+                // Password validation
+                const password = formData.get('password');
+                const passwordError = document.getElementById('passwordError');
+                if (!password) {
+                    passwordError.textContent = 'Password is required';
+                    document.getElementById('id_password').classList.add('error');
+                    isValid = false;
+                } else {
+                    passwordError.textContent = '';
+                    document.getElementById('id_password').classList.remove('error');
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Show loading state
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'flex';
+                submitBtn.disabled = true;
+
+                // In a real Django app, you would remove this simulation
+                // and let the form submit naturally to your Django view
+                setTimeout(() => {
+                    // Hide loading state
+                    btnText.style.display = 'block';
+                    btnLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+
+                    // Simulate different user types for demonstration
+                    const email = document.getElementById('id_email').value;
+                    let redirectUrl = 'volunteer-dashboard.html'; // default
+
+                    // In a real app, this would come from the server response
+                    if (email.includes('admin')) {
+                        redirectUrl = 'admin-dashboard.html';
+                    } else if (email.includes('ngo')) {
+                        redirectUrl = 'ngo-dashboard.html';
+                    }
+
+                    showMessage('success', 'Login successful! Redirecting to dashboard...');
+                    
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 1500);
+                }, 2000);
+
+                // In a real Django app, you would uncomment this line instead:
+                // form.submit();
+            });
+
+            // Real-time validation
+            document.getElementById('id_email').addEventListener('blur', function() {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (this.value.trim() && !emailRegex.test(this.value)) {
+                    document.getElementById('emailError').textContent = 'Please enter a valid email address';
+                    this.classList.add('error');
+                } else if (this.value.trim()) {
+                    document.getElementById('emailError').textContent = '';
+                    this.classList.remove('error');
+                }
+            });
+
+            // Clear errors on input
+            ['id_email', 'id_password'].forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.classList.remove('error');
+                            const errorId = fieldId.replace('id_', '') + 'Error';
+                            const errorElement = document.getElementById(errorId);
+                            if (errorElement) {
+                                errorElement.textContent = '';
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Message system
+            function showMessage(type, text) {
+                const overlay = document.getElementById('messageOverlay');
+                const icon = document.getElementById('messageIcon');
+                const textEl = document.getElementById('messageText');
+                
+                // Set message type and content
+                overlay.className = `message-overlay ${type}`;
+                textEl.textContent = text;
+                
+                // Set appropriate icon
+                if (type === 'success') {
+                    icon.textContent = '✓';
+                } else if (type === 'error') {
+                    icon.textContent = '✗';
+                } else {
+                    icon.textContent = 'ℹ';
+                }
+                
+                overlay.style.display = 'flex';
+                
+                // Auto hide after 3 seconds
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 3000);
+            }
+
+            // Close message
+            document.getElementById('messageClose')?.addEventListener('click', function() {
+                document.getElementById('messageOverlay').style.display = 'none';
+            });
+
+            // Handle login errors from server (for Django integration)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error') === 'invalid_credentials') {
+                showMessage('error', 'Invalid email or password. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>

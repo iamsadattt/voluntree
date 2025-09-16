@@ -1,0 +1,416 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - VolunteerHub</title>
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">VolunteerHub</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="login.html">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="form-container">
+            <div class="form-card">
+                <h2 class="form-title">Create an Account</h2>
+                
+                <form class="registration-form" id="registrationForm" method="post">
+                    <!-- CSRF Token (Django) -->
+                    <input type="hidden" name="csrfmiddlewaretoken" value="csrf_token_here">
+                    
+                    <!-- Username Field -->
+                    <div class="form-group">
+                        <label for="id_username" class="form-label">Username</label>
+                        <input 
+                            type="text" 
+                            id="id_username" 
+                            name="username" 
+                            class="form-input" 
+                            placeholder="Enter your username"
+                            required
+                        >
+                        <span class="form-error" id="usernameError"></span>
+                    </div>
+
+                    <!-- First Name Field -->
+                    <div class="form-group">
+                        <label for="id_first_name" class="form-label">First Name</label>
+                        <input 
+                            type="text" 
+                            id="id_first_name" 
+                            name="first_name" 
+                            class="form-input" 
+                            placeholder="Enter your first name"
+                            required
+                        >
+                        <span class="form-error" id="firstNameError"></span>
+                    </div>
+
+                    <!-- Last Name Field -->
+                    <div class="form-group">
+                        <label for="id_last_name" class="form-label">Last Name</label>
+                        <input 
+                            type="text" 
+                            id="id_last_name" 
+                            name="last_name" 
+                            class="form-input" 
+                            placeholder="Enter your last name"
+                            required
+                        >
+                        <span class="form-error" id="lastNameError"></span>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <label for="id_email" class="form-label">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="id_email" 
+                            name="email" 
+                            class="form-input" 
+                            placeholder="you@example.com"
+                            required
+                        >
+                        <span class="form-error" id="emailError"></span>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="id_password1" class="form-label">Password</label>
+                        <div class="password-container">
+                            <input 
+                                type="password" 
+                                id="id_password1" 
+                                name="password1" 
+                                class="form-input" 
+                                placeholder="••••••••"
+                                required
+                            >
+                            <button type="button" class="password-toggle" id="passwordToggle1">
+                                <span class="toggle-icon">👁️</span>
+                            </button>
+                        </div>
+                        <span class="form-error" id="password1Error"></span>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="form-group">
+                        <label for="id_password2" class="form-label">Confirm Password</label>
+                        <div class="password-container">
+                            <input 
+                                type="password" 
+                                id="id_password2" 
+                                name="password2" 
+                                class="form-input" 
+                                placeholder="••••••••"
+                                required
+                            >
+                            <button type="button" class="password-toggle" id="passwordToggle2">
+                                <span class="toggle-icon">👁️</span>
+                            </button>
+                        </div>
+                        <span class="form-error" id="password2Error"></span>
+                    </div>
+
+                    <!-- Role Selection -->
+                    <div class="form-group">
+                        <label for="role" class="form-label">Register as:</label>
+                        <select id="role" name="role" class="form-select" required>
+                            <option value="">-- Choose your role --</option>
+                            <option value="volunteer">Volunteer</option>
+                            <option value="ngo">NGO Organizer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <span class="form-error" id="roleError"></span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        <span class="btn-text">Register</span>
+                        <div class="btn-loading" style="display: none;">
+                            <div class="loading-spinner"></div>
+                            Creating account...
+                        </div>
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    <span class="footer-text">Already have an account?</span>
+                    <a href="login.html" class="login-link">Login</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success/Error Messages -->
+    <div class="message-overlay" id="messageOverlay" style="display: none;">
+        <div class="message-content">
+            <div class="message-icon" id="messageIcon"></div>
+            <div class="message-text" id="messageText"></div>
+            <button class="message-close" id="messageClose">×</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form elements
+            const form = document.getElementById('registrationForm');
+            const submitBtn = document.querySelector('.submit-btn');
+            const btnText = document.querySelector('.btn-text');
+            const btnLoading = document.querySelector('.btn-loading');
+
+            // Password toggle functionality
+            setupPasswordToggle('passwordToggle1', 'id_password1');
+            setupPasswordToggle('passwordToggle2', 'id_password2');
+
+            function setupPasswordToggle(toggleId, inputId) {
+                const toggle = document.getElementById(toggleId);
+                const input = document.getElementById(inputId);
+                
+                if (toggle && input) {
+                    toggle.addEventListener('click', function() {
+                        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                        input.setAttribute('type', type);
+                        
+                        const icon = toggle.querySelector('.toggle-icon');
+                        icon.textContent = type === 'password' ? '👁️' : '🙈';
+                    });
+                }
+            }
+
+            // Form validation
+            function validateForm() {
+                let isValid = true;
+                const formData = new FormData(form);
+                
+                // Username validation
+                const username = formData.get('username')?.trim();
+                const usernameError = document.getElementById('usernameError');
+                if (!username) {
+                    usernameError.textContent = 'Username is required';
+                    document.getElementById('id_username').classList.add('error');
+                    isValid = false;
+                } else if (username.length < 3) {
+                    usernameError.textContent = 'Username must be at least 3 characters';
+                    document.getElementById('id_username').classList.add('error');
+                    isValid = false;
+                } else {
+                    usernameError.textContent = '';
+                    document.getElementById('id_username').classList.remove('error');
+                }
+
+                // First name validation
+                const firstName = formData.get('first_name')?.trim();
+                const firstNameError = document.getElementById('firstNameError');
+                if (!firstName) {
+                    firstNameError.textContent = 'First name is required';
+                    document.getElementById('id_first_name').classList.add('error');
+                    isValid = false;
+                } else {
+                    firstNameError.textContent = '';
+                    document.getElementById('id_first_name').classList.remove('error');
+                }
+
+                // Last name validation
+                const lastName = formData.get('last_name')?.trim();
+                const lastNameError = document.getElementById('lastNameError');
+                if (!lastName) {
+                    lastNameError.textContent = 'Last name is required';
+                    document.getElementById('id_last_name').classList.add('error');
+                    isValid = false;
+                } else {
+                    lastNameError.textContent = '';
+                    document.getElementById('id_last_name').classList.remove('error');
+                }
+
+                // Email validation
+                const email = formData.get('email')?.trim();
+                const emailError = document.getElementById('emailError');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!email) {
+                    emailError.textContent = 'Email is required';
+                    document.getElementById('id_email').classList.add('error');
+                    isValid = false;
+                } else if (!emailRegex.test(email)) {
+                    emailError.textContent = 'Please enter a valid email address';
+                    document.getElementById('id_email').classList.add('error');
+                    isValid = false;
+                } else {
+                    emailError.textContent = '';
+                    document.getElementById('id_email').classList.remove('error');
+                }
+
+                // Password validation
+                const password1 = formData.get('password1');
+                const password1Error = document.getElementById('password1Error');
+                if (!password1) {
+                    password1Error.textContent = 'Password is required';
+                    document.getElementById('id_password1').classList.add('error');
+                    isValid = false;
+                } else if (password1.length < 8) {
+                    password1Error.textContent = 'Password must be at least 8 characters';
+                    document.getElementById('id_password1').classList.add('error');
+                    isValid = false;
+                } else {
+                    password1Error.textContent = '';
+                    document.getElementById('id_password1').classList.remove('error');
+                }
+
+                // Confirm password validation
+                const password2 = formData.get('password2');
+                const password2Error = document.getElementById('password2Error');
+                if (!password2) {
+                    password2Error.textContent = 'Please confirm your password';
+                    document.getElementById('id_password2').classList.add('error');
+                    isValid = false;
+                } else if (password1 !== password2) {
+                    password2Error.textContent = 'Passwords do not match';
+                    document.getElementById('id_password2').classList.add('error');
+                    isValid = false;
+                } else {
+                    password2Error.textContent = '';
+                    document.getElementById('id_password2').classList.remove('error');
+                }
+
+                // Role validation
+                const role = formData.get('role');
+                const roleError = document.getElementById('roleError');
+                if (!role) {
+                    roleError.textContent = 'Please select a role';
+                    document.getElementById('role').classList.add('error');
+                    isValid = false;
+                } else {
+                    roleError.textContent = '';
+                    document.getElementById('role').classList.remove('error');
+                }
+
+                return isValid;
+            }
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Show loading state
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'flex';
+                submitBtn.disabled = true;
+
+                // In a real Django app, you would remove this simulation
+                // and let the form submit naturally to your Django view
+                setTimeout(() => {
+                    // Hide loading state
+                    btnText.style.display = 'block';
+                    btnLoading.style.display = 'none';
+                    submitBtn.disabled = false;
+
+                    const formData = new FormData(form);
+                    const role = formData.get('role');
+
+                    // Show appropriate success message based on role
+                    let message = 'Account created successfully!';
+                    if (role === 'ngo') {
+                        message = 'NGO account created! Your registration is pending approval.';
+                    } else if (role === 'admin') {
+                        message = 'Admin account created successfully!';
+                    } else if (role === 'volunteer') {
+                        message = 'Volunteer account created! Welcome to VolunteerHub.';
+                    }
+
+                    showMessage('success', message);
+                    
+                    // Reset form after successful submission
+                    form.reset();
+                    
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                }, 2000);
+
+                // In a real Django app, you would uncomment this line instead:
+                // form.submit();
+            });
+
+            // Real-time validation
+            ['id_username', 'id_first_name', 'id_last_name', 'id_email'].forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('blur', function() {
+                        // Clear error state when user starts typing
+                        if (this.value.trim()) {
+                            this.classList.remove('error');
+                            const errorId = fieldId.replace('id_', '') + 'Error';
+                            const errorElement = document.getElementById(errorId);
+                            if (errorElement) {
+                                errorElement.textContent = '';
+                            }
+                        }
+                    });
+                }
+            });
+
+            // Password confirmation real-time check
+            document.getElementById('id_password2')?.addEventListener('input', function() {
+                const password1 = document.getElementById('id_password1').value;
+                const password2Error = document.getElementById('password2Error');
+                
+                if (this.value && password1 !== this.value) {
+                    password2Error.textContent = 'Passwords do not match';
+                    this.classList.add('error');
+                } else if (this.value) {
+                    password2Error.textContent = '';
+                    this.classList.remove('error');
+                }
+            });
+
+            // Message system
+            function showMessage(type, text) {
+                const overlay = document.getElementById('messageOverlay');
+                const icon = document.getElementById('messageIcon');
+                const textEl = document.getElementById('messageText');
+                
+                // Set message type and content
+                overlay.className = `message-overlay ${type}`;
+                textEl.textContent = text;
+                
+                // Set appropriate icon
+                if (type === 'success') {
+                    icon.textContent = '✓';
+                } else if (type === 'error') {
+                    icon.textContent = '✗';
+                } else {
+                    icon.textContent = 'ℹ';
+                }
+                
+                overlay.style.display = 'flex';
+                
+                // Auto hide after 4 seconds
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 4000);
+            }
+
+            // Close message
+            document.getElementById('messageClose')?.addEventListener('click', function() {
+                document.getElementById('messageOverlay').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

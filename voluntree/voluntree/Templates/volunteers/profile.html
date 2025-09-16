@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - VolunteerHub{% endblock %}
+
+{% block nav_links %}
+<li><a href="{% url 'volunteer_dashboard' %}">Dashboard</a></li>
+<li><a href="{% url 'browse_events' %}">Browse Events</a></li>
+<li><a href="{% url 'my_events' %}">My Events</a></li>
+<li><a href="{% url 'my_certificates' %}">Certificates</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h2>My Profile</h2>
+    <p><b>Name:</b> {{ request.user.first_name }} {{ request.user.last_name }}</p>
+    <p><b>Email:</b> {{ request.user.email }}</p>
+    <p><b>Skills:</b> {{ profile.skills|default:"Not added yet" }}</p>
+    <p><b>Total Hours:</b> {{ profile.total_hours|default:"0" }}</p>
+</div>
+{% endblock %}

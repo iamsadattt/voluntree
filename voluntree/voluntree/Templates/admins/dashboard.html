@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<h2>Pending NGOs</h2>
+<ul>
+  {% for p in pending_ngos %}
+    <li>{{ p.name }} - <a href="{% url 'ngo_approval' p.id %}">Review</a></li>
+  {% empty %}<li>No pending</li>{% endfor %}
+</ul>
+<a href="{% url 'reports' %}">Reports</a>
+{% endblock %}

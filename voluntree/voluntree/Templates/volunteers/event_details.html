@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Event Details - VolunteerHub{% endblock %}
+
+{% block nav_links %}
+<li><a href="{% url 'volunteer_dashboard' %}">Dashboard</a></li>
+<li><a href="{% url 'browse_events' %}">Browse Events</a></li>
+<li><a href="{% url 'my_events' %}">My Events</a></li>
+<li><a href="{% url 'my_certificates' %}">Certificates</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="event-details">
+    <h2>{{ event.title }}</h2>
+    <p>{{ event.description }}</p>
+    <p><b>Location:</b> {{ event.location }}</p>
+    <p><b>Date:</b> {{ event.date }}</p>
+    <p><b>Skills Required:</b> {{ event.skills }}</p>
+
+    {% if registered %}
+        <button class="btn btn-secondary" disabled>Already Registered</button>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Volunteer Dashboard - VolunteerHub{% endblock %}
+
+{% block nav_links %}
+<li><a href="{% url 'volunteer_dashboard' %}" class="active">Dashboard</a></li>
+<li><a href="{% url 'browse_events' %}">Browse Events</a></li>
+<li><a href="{% url 'my_events' %}">My Events</a></li>
+<li><a href="{% url 'my_certificates' %}">Certificates</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1>Welcome, {{ request.user.first_name }} 👋</h1>
+    <p>Here’s an overview of your volunteer activities.</p>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-box">
+            <h3>{{ events_joined|default:"0" }}</h3>
+            <p>Events Joined</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ total_hours|default:"0" }}</h3>
+            <p>Hours Volunteered</p>
+        </div>
+        <div class="stat-box">
+            <h3>{{ certificates|default:"0" }}</h3>
+            <p>Certificates Earned</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

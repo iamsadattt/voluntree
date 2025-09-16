@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}My Certificates - VolunteerHub{% endblock %}
+
+{% block nav_links %}
+<li><a href="{% url 'volunteer_dashboard' %}">Dashboard</a></li>
+<li><a href="{% url 'browse_events' %}">Browse Events</a></li>
+<li><a href="{% url 'my_events' %}">My Events</a></li>
+<li><a href="{% url 'my_certificates' %}" class="active">Certificates</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="certificates-container">
+    <h2>My Certificates</h2>
+    {% for cert in certificates %}
+        <div class="certificate-card">
+            <h3>{{ cert.title }}</h3>
+            <p>Awarded for participation in {{ cert.event.title }}</p>
+            <p><b>Date:</b> {{ cert.issued_date }}</p>
+            <a href="{{ cert.file.url }}" class="btn btn-secondary" target="_blank">View Certificate</a>
+        </div>
+    {% empty %}
+        <p>No certificates earned yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

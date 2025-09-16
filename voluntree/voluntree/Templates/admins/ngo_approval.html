@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Review NGO {{ ngo.name }}</h1>
+<p>{{ ngo.about }}</p>
+<form method="post">{% csrf_token %}
+  <button name="action" value="approve" type="submit">Approve</button>
+  <button name="action" value="reject" type="submit">Reject</button>
+</form>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Events - VolunteerHub{% endblock %}
+
+{% block nav_links %}
+<li><a href="{% url 'volunteer_dashboard' %}">Dashboard</a></li>
+<li><a href="{% url 'browse_events' %}" class="active">Browse Events</a></li>
+<li><a href="{% url 'my_events' %}">My Events</a></li>
+<li><a href="{% url 'my_certificates' %}">Certificates</a></li>
+{% endblock %}
+
+{% block content %}
+<div class="event-listing">
+    <h2>Available Events</h2>
+    {% for event in events %}
+        <div class="event-card">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.description }}</p>
+            <p><b>Location:</b> {{ event.location }}</p>
+            <p><b>Date:</b> {{ event.date }}</p>
+            <a href="{% url 'event_details' event.id %}" class="btn btn-primary">View Details</a>
+        </div>
+    {% empty %}
+        <p>No events available right now.</p>
+    {% endfor %}
+</div>
+{% endblock %}
